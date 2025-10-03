@@ -136,6 +136,10 @@ app.get("/terms", (req, res) => {
   res.render("terms");
 });
 
+app.get("/", (req, res) => {
+  res.redirect("/listings");
+});
+
 app.all("*", (req,res,next) =>{
     next(new ExpressError(404, "Page Not Found!"));
 });
@@ -146,9 +150,6 @@ app.use((err,req,res,next) =>{
     
 });
 
-app.get("/", (req, res) => {
-  res.redirect("/listings");
-});
 
 
 
