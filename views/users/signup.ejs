@@ -8,21 +8,37 @@
                 <label for="username" class="form-label">Username</label>
                 <input type="text" name="username" id="username" class="form-control" required/>
                 <div class="valid-feedback">Looks good!</div>
-            
             </div>
 
             <div class="mb-3">
                 <label for="email" class="form-label">Email</label>
                 <input type="email" name="email" id="email" class="form-control" required/>            
+                <div class="invalid-feedback">Please provide a valid email.</div>
             </div>
 
             <div class="mb-3">
                 <label for="password" class="form-label">Password</label>
                 <input type="password" name="password" id="password" class="form-control" required/>
+                <div class="invalid-feedback">Password must be at least 8 characters long.</div>
                 <div class="valid-feedback">Looks good!</div>
-            
             </div>
+
             <button class="btn btn-success">SignUp</button>
+            <br><br>
+            <a class="nav-link adminsignup" href="/adminsignup">Sign Up As Admin</a>
         </form>
     </div>
 </div>
+
+<script>
+  //  Custom password validation
+  const passwordInput = document.getElementById("password");
+
+  passwordInput.addEventListener("input", function () {
+    if (passwordInput.value.length < 8) {
+      passwordInput.setCustomValidity("Password must be at least 8 characters long.");
+    } else {
+      passwordInput.setCustomValidity(""); // clears the error
+    }
+  });
+</script>

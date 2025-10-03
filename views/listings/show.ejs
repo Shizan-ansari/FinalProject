@@ -1,4 +1,14 @@
 <% layout("layouts/boilerplate") %>
+<script>
+  const mapToken = "<%=process.env.MAP_TOKEN%>";
+  const listing = <%- JSON.stringify(listing)%>;
+  const currUser = <%- JSON.stringify(currUser || null) %>;
+</script>
+<head>
+  <!-- SweetAlert2 -->
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+</head>
+
 <body>
     <div class="row mt-3">
         <div class="col-8 offset-3">    
@@ -8,22 +18,35 @@
     <div class="card col-6 offset-3 show-card listing-card">
          <img src="<%= listing.image.url%> " class="card-img-top show-img" alt="listing_image">
         <div class="card-body">
-            <p class="card-text">Owned By: <i><%= listing.owner.username %></i></p>
+            <p class="card-text"><strong>Owned By:</strong> @<i><%= listing.owner.username %></i></p>
                 
-            <p class="card-text"><%= listing.description %> </p>
+            <p class="card-text"> <strong>Description: </strong><%= listing.description %> </p>
 
-            <p class="card-text">&#8377;<%= listing.price.toLocaleString("en-IN") %></p>
+            <p class="card-text price-coloring">
+              <strong class="price-strong">Price: </strong>
+              <% if (listing.isOffer && listing.offerPrice) { %>
+                <span class="text-muted text-decoration-line-through">
+                  &#8377;<%= listing.price.toLocaleString("en-IN") %>
+                </span>
+                <b class="ms-2 text-success">
+                  &#8377;<%= listing.offerPrice.toLocaleString("en-IN") %>
+                </b>
+              <% } else { %>
+                <b>&#8377;<%= listing.price.toLocaleString("en-IN") %></b>
+              <% } %>
+            </p>
 
-            <p class="card-text"><%= listing.location %></p>
 
-            <p class="card-text"><%= listing.country %></p>               
+            <p class="card-text"><strong>Location: </strong><i class="fas fa-map-marker-alt me-2 icon-loc"></i><%= listing.location %></p>
+
+            <p class="card-text"><strong>Country: </strong><%= listing.country %></p>               
         
         </div>
     </div>
     <br>    
     </div>
 
-    <% if(currUser && listing.owner._id.equals(currUser._id)){ %>
+    <% if(currUser && (listing.owner.equals(currUser._id) || currUser._id.toString() === GLOBAL_ADMIN_ID)){ %>
     <div class="btns">
         <a href="/listings/<%= listing._id %>/edit" class="btn btn-dark col-1 offset-3 edit-btn">Edit</a>
     
@@ -32,16 +55,80 @@
         </form>
     </div>
     <% } %>
+    <br>
+    <br>
 
-    <div class="btns">
-        <button class="btn btn-light col-1 offset-3 pay-btn">Pay Now</button>
+    <!-- Book Button -->
+<button type="button" class="btn offset-3 form-btn" onclick="openBookingForm()">Book</button>
+
+<!-- Booking Form (hidden initially) -->
+<div id="bookingForm" style="display:none;">
+  <form class="pay-form" method="POST" action="/createOrder">
+    <input type="hidden" name="listingId" value="<%= listing._id %>">
+    <input type="hidden" name="name" value="<%= listing.title %>">
+    <input type="hidden" name="amount" 
+    value="<%= listing.isOffer && listing.offerPrice ? listing.offerPrice : listing.price %>">
+
+    <input type="hidden" name="description" value="<%= listing.description %>">
+
+    <!-- New fields for booking -->
+    <div class="offset-3 col-6">
+        <label>Customer Name</label>
+        <input type="text" name="customerName" class="form-control" required>
     </div>
+
+    <div class="offset-3 col-6">
+        <label>Contact Number</label>
+        <input minlength="10" maxlength="10" type="text" name="contact" class="form-control" required>
+    </div>
+
+    <div class="offset-3 col-6">
+        <label>Number of Guests</label>
+        <input type="number" name="guests" class="form-control" min="1" required>
+    </div>
+
+    <div class="offset-3 col-6">
+        <label>Check-in Date</label>
+        <input type="date" name="checkIn" class="form-control" required>
+    </div>
+
+    <div class="offset-3 col-6">
+        <label>Check-out Date</label>
+        <input type="date" name="checkOut" class="form-control" required>
+    </div>
+    <script>
+      // Get today's date in yyyy-mm-dd format
+      let today = new Date().toISOString().split("T")[0];
+      document.getElementById("checkIn").setAttribute("min", today);
+
+      // When check-in changes, update checkout min
+      document.getElementById("checkIn").addEventListener("change", function() {
+        document.getElementById("checkOut").setAttribute("min", this.value);
+      });
+    </script>
+
+    <div class="offset-3 col-6">
+        <label>Special Requests</label>
+        <textarea name="specialRequests" class="form-control"></textarea>
+    </div>
+    <br>
+    <button type="submit" class="btn btn-primary offset-3">Pay Now</button>
+</form>
+
+</div>
+
+
+
+
     
    
     <div  class="col-8 offset-3 mb-3">
-        <hr>
-        <h4>Leave a Review</h4>
+        
+        
+       
          <% if(currUser) { %>
+          <hr>
+          <h4>Leave a Review</h4>
         <form action="/listings/<%= listing.id %>/reviews" method="POST" novalidate class="needs-validation">
             <!-- <div class="mb-3 mt-3">
                 <label for="rating" class="form-label">Rating</label>
@@ -76,8 +163,9 @@
         <% } %>
         <hr>
 
-        <p><b>All Reviews</b></p>
+        <% if(listing.reviews.length > 0) { %>
         <div class="row ">
+        <p><b>All Reviews</b></p>
         <% for (review of listing.reviews) { %>
             <div class="card col-5 ms-3 mb-3">
                 <div class="card-body">
@@ -92,44 +180,186 @@
             </div>
         <% } %>
         </div>
-        
+        <% } %>
     </div>
-    <script>
-  document.getElementById("pay-now").addEventListener("click", function () {
-    const formHTML = `
-      <div style="max-width: 400px; background: #fff; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0,0,0,0.1);">
-        <h3>Fake Payment Gateway</h3>
-        <form id="fake-payment-form">
-          <input type="text" placeholder="Card Number" required style="width: 100%; padding: 10px; margin: 8px 0;" />
-          <input type="text" placeholder="Name on Card" required style="width: 100%; padding: 10px; margin: 8px 0;" />
-          <input type="text" placeholder="MM/YY" required style="width: 100%; padding: 10px; margin: 8px 0;" />
-          <input type="text" placeholder="CVV" required style="width: 100%; padding: 10px; margin: 8px 0;" />
-          <button type="submit" style="background: green; color: white; padding: 10px; border: none; width: 100%;">Submit Payment</button>
-        </form>
-        <div id="status" style="margin-top: 10px; font-weight: bold;"></div>
+
+    <div class="col-8 offset-3 mb-3">
+        <h3>Where you'll be</h3>
+        <div id="map">
+          
+        </div>
       </div>
-    `;
 
-    document.getElementById("payment-container").innerHTML = formHTML;
+     <script src="/js/map.js">
 
-    document.getElementById("fake-payment-form").addEventListener("submit", function (e) {
-      e.preventDefault();
-      const statusDiv = document.getElementById("status");
-      statusDiv.innerText = "Processing payment...";
-      statusDiv.style.color = "#333";
+     </script>
+</body>
 
-      setTimeout(() => {
-        const isSuccess = Math.random() < 0.85;
-        if (isSuccess) {
-          statusDiv.innerText = "✅ Payment Successful! Thank you.";
-          statusDiv.style.color = "green";
-        } else {
-          statusDiv.innerText = "❌ Payment Failed. Try again.";
-          statusDiv.style.color = "red";
+<!--Inside index.html -->
+<!-- Logic of the payment gateway -->
+ 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+  $(document).ready(function () {
+
+    //  Function to calculate number of nights
+    function calculateNights(checkInVal, checkOutVal) {
+      if (!checkInVal || !checkOutVal) return 0;
+
+      const startParts = checkInVal.split("-");
+      const endParts = checkOutVal.split("-");
+
+      const checkInDate = new Date(startParts[0], startParts[1] - 1, startParts[2]);
+      const checkOutDate = new Date(endParts[0], endParts[1] - 1, endParts[2]);
+
+      const oneDay = 24 * 60 * 60 * 1000;
+      return Math.round((checkOutDate - checkInDate) / oneDay);
+    }
+
+    $(".pay-form").submit(function (e) {
+      e.preventDefault(); // prevent normal form submit
+
+      $.ajax({
+        url: "/createOrder",
+        method: "POST",
+        data: $(this).serialize(),
+        success: function (res) {
+          if (!res.success) {
+            Swal.fire({
+              icon: 'error',
+              title: 'Booking Failed',
+              text: res.msg || "Booking failed due to date conflict.",
+              confirmButtonColor: '#d33',
+              confirmButtonText: 'Okay'
+            });
+            return;
+          }
+
+          //  Calculate nights properly
+          const checkInVal = $("input[name='checkIn']").val();
+          const checkOutVal = $("input[name='checkOut']").val();
+          const nights = calculateNights(checkInVal, checkOutVal);
+
+          //  Show confirmation before Razorpay popup
+          Swal.fire({
+            icon: 'info',
+            title: 'Confirm Your Booking',
+            html: `
+              <p>This is the total amount based on nights you want to stay</p>
+              <p>Total Amount: <b>₹${res.amount / 100}</b></p>
+            `,
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Proceed to Pay'
+          }).then((result) => {
+            if (result.isConfirmed) {
+              var options = {
+                key: res.key_id,
+                amount: res.amount,
+                currency: "INR",
+                name: res.product_name,
+                description: res.description,
+                order_id: res.order_id,
+
+                handler: function (response) {
+                  $.ajax({
+                    url: "/razorpay/confirm",
+                    method: "POST",
+                    data: {
+                      razorpayPaymentId: response.razorpay_payment_id,
+                      razorpayOrderId: response.razorpay_order_id,
+                      razorpaySignature: response.razorpay_signature,
+
+                      listingId: res.listingId,
+                      customerName: res.name,
+                      contact: res.contact,
+                      guests: res.guests,
+                      checkIn: res.checkIn,           //  always defined now
+                      checkOut: res.checkOut,         //  always defined now
+                      specialRequests: res.specialRequests,
+                      email: res.email
+                    },
+                    success: function (resp) {
+                      if (resp.success) {
+                        Swal.fire({
+                          icon: 'success',
+                          title: 'Booking Confirmed!',
+                          text: "Your payment was successful and booking is confirmed.",
+                        }).then(() => {
+                          window.location.href = "/listings";
+                        });
+                      } else {
+                        Swal.fire({
+                          icon: 'error',
+                          title: 'Payment Failed',
+                          text: resp.msg || "Could not confirm booking. Please try again.",
+                        });
+                      }
+                    },
+                    error: function () {
+                      Swal.fire({
+                        icon: 'error',
+                        title: 'Server Error',
+                        text: "Error confirming payment.",
+                      });
+                    }
+                  });
+                },
+
+
+
+                prefill: {
+                  name: $("input[name='customerName']").val(),
+                  email: res.email,
+                  contact: $("input[name='contact']").val()
+                },
+
+                theme: {
+                  color: "#3399cc"
+                },
+                modal: {
+                  ondismiss: function () {
+                    console.log("Payment popup closed by user.");
+                    // Optional: call backend to cancel "pending" order
+                  }
+                }
+              };
+
+              var rzp1 = new Razorpay(options);
+              rzp1.open();
+            }
+          });
+        },
+        error: function () {
+          Swal.fire({
+            icon: 'error',
+            title: 'Server Error',
+            text: "Please try again later."
+          });
         }
-      }, 2000);
+      });
     });
   });
 </script>
 
-</body>
+
+<script>
+  function openBookingForm() {
+    if (!currUser) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Login Required',
+        text: 'Make sure you are logged in before booking.',
+        confirmButtonColor: '#d33',
+        confirmButtonText: 'Okay'
+      });
+      return;
+    }
+
+    document.getElementById("bookingForm").style.display = "block";
+  }
+</script>

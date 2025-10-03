@@ -6,7 +6,13 @@ const userSchema = new Schema({
     email:{
         type: String,
         required: true,
+    },
+    role: {
+        type: String,
+        enum: ["user", "admin"], // only these two roles allowed
+        default: "user"
     }
+    
 });
 
 userSchema.plugin(passportLocalMongoose);//automatically username, hashing , salting and hash password implement by plugin

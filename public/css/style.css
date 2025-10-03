@@ -53,8 +53,10 @@ body{
 /* cards */
 
 .listing-card{
-    border: none !important;
+    /* border: none !important; */
     margin-bottom: 2rem;
+    margin-right: 1rem;
+    border: 2px solid black;
 }
 .card-img-top{
     border-radius: 1rem;
@@ -64,11 +66,13 @@ body{
 
 /* card ka text align ho jaega chipak ke */
 .card-body{
-    padding: 0 !important;
+    padding: 0.1 !important;
+    
 }
 
 .card-text p{
     font-weight: 400 !important;
+    margin-left: 1rem;
 }
 .listing-link{
     text-decoration: none;
@@ -79,12 +83,18 @@ body{
     opacity: 0;
 }
 .card-img-overlay:hover {
-    opacity: 0.2;
-    background-color: white;
+    opacity: 0.1;
+    background-color: #ff385c;
 }
 .add-btn{
     background-color: #FF6B6B !important;
     border: none !important;
+}
+.price-listing{
+    color: #ff385c;
+}
+.icon-loc{
+    color: #ff385c;
 }
 
 /* edit page */
@@ -106,8 +116,92 @@ body{
     padding-left: 0;
     padding-right: 0;
 }
-.pay-btn{
+.form-btn{
     margin-top: 1rem;
     color: white !important;
     background-color: rgb(0, 187, 255) !important;
+}
+
+
+/* map styling */
+#map { 
+    height: 400px;
+    width: 80vh;
+
+ }
+
+/* video styling */
+/* VIDEO / HERO (keep your previous styles) */
+.hero {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+}
+.hero-video {
+  position: absolute;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  filter: brightness(0.7);
+}
+
+/* Divider animation */
+/* Divider animation */
+.section-divider {
+  height: 4px;
+  margin: 24px 0;
+  background: linear-gradient(90deg, transparent, #ff7a7a 30%, #ff385c 70%, transparent);
+  transform: scaleX(0);
+  transform-origin: center;
+  transition: transform 0.6s cubic-bezier(.2,.9,.2,1);
+}
+.section-divider.animate-divider {
+  transform: scaleX(1);
+}
+
+/* Fade + slide animation */
+.fade-slide {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.55s ease-out, transform 0.55s ease-out;
+}
+.fade-slide.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Hero overlay styling */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  color: #fff;
+  text-align: center;
+  padding: 0 1rem;
+}
+
+
+/* show.ejs */
+.price-coloring{
+    color: rgb(10, 211, 247);
+}
+.price-strong{
+    color:#222222 !important;
+}
+
+
+.adminsignup{
+    color: white !important;
+    background-color: #f94d4d !important;
+    width:25%;
+    height: 30%;
+    border-radius: 3px;
+    text-align: center;
+}
+
+.search-result{
+    text-align: center;
 }

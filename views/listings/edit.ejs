@@ -1,25 +1,27 @@
-<% layout("layouts/boilerplate") %>
+<% layout("layouts/boilerplate") %> 
 <body>
 <div class="row mt-3">
     <div class="col-8 offset-2">
     <h3>Edit your listing </h3>
     <form method="POST" action="/listings/<%=listing._id %>?_method=PUT" 
         novalidate class="needs-validation"
-        enctype="multipart/form-data">
+        enctype="multipart/form-data" id="editForm">
+        
         <div class="mb-3">
              <label for="title" class="form-label">Title</label>
             <input type="text" name="listing[title]" value="<%= listing.title %>" class="form-control" required>
             <div class="valid-feedback">Title looks good</div>
         </div>
+        
         <div class="mb-3">
             <label for="description" class="form-label">Description</label>
             <textarea name="listing[description]" class="form-control" required><%= listing.description %></textarea>
             <div class="invalid-feedback">Please enter a short description</div>
         </div>
 
-        <div class="mb-3">
+        <div class="mb-3 ">
             Original Listing Image <br>
-            <img src="<%= originalImageUrl %>" >
+            <img src="<%= originalImageUrl %>" class="img-thumbnail" style="max-width:250px;" >
         </div>
 
         <div class="mb-3">
@@ -30,22 +32,107 @@
         <div class="row">
             <div class="mb-3 col-md-4">
                 <label for="price" class="form-label">Price</label>
-                <input type="number" name="listing[price]"  value="<%= listing.price %>" class="form-control" required>
+                <input 
+                    type="number" 
+                    name="listing[price]"  
+                    value="<%= listing.price %>" 
+                    class="form-control" 
+                    id="priceInput"
+                    required>
                 <div class="invalid-feedback">Price should be valid</div>
+                <!--  Custom error message -->
+                <small id="priceError" class="text-danger" style="display:none;">
+                    Price cannot be 0 or less
+                </small>
             </div>
             <div class="mb-3 col-md-8">
                 <label for="country" class="form-label">Country</label>
                 <input type="text" name="listing[country]"  value="<%= listing.country %>" class="form-control" required>
                 <div class="invalid-feedback">Country name should be valid</div>
-        </div>
+            </div>
         </div>
         
         <div class="mb-3">
             <label for="location" class="form-label">Location</label>
-            <input type="text" name="listing[location]"  value="<%= listing.location %>" class="form-control"required>
+            <input type="text" name="listing[location]"  value="<%= listing.location %>" class="form-control" required>
             <div class="invalid-feedback">Location should be valid</div>
         </div>    
+        
+        <div class="mb-3">
+        <label class="form-label">Categories</label><br>
+
+        <div class="form-check">
+            <input 
+            type="checkbox" 
+            name="listing[isFeatured]" 
+            value="true" 
+            class="form-check-input" 
+            id="isFeatured" 
+            <%= listing.isFeatured ? "checked" : "" %> 
+            />
+            <label for="isFeatured" class="form-check-label">Featured</label>
+        </div>
+
+        <div class="form-check">
+            <input 
+            type="checkbox" 
+            name="listing[isOffer]" 
+            value="true" 
+            class="form-check-input" 
+            id="isOffer" 
+            <%= listing.isOffer ? "checked" : "" %> 
+            />
+            <label for="isOffer" class="form-check-label">Offer</label>
+        </div>
+        
+        <div class="mb-3" id="offerPriceField" style="<%= listing.isOffer ? '' : 'display:none;' %>">
+            <label for="offerPrice" class="form-label">Offer Price</label>
+            <input 
+                type="number" 
+                name="listing[offerPrice]" 
+                id="offerPrice" 
+                class="form-control"
+                value="<%= listing.offerPrice || '' %>"
+            >
+        </div>
+    </div>
+
     <button class="btn btn-dark edit-btn mt-3">Edit</button>
     </form>
     </div>
 </div>
+
+<script>
+  const isOfferCheckbox = document.getElementById("isOffer");
+  const offerPriceField = document.getElementById("offerPriceField");
+  const priceInput = document.getElementById("priceInput");
+  const priceError = document.getElementById("priceError");
+  const form = document.getElementById("editForm");
+
+  isOfferCheckbox.addEventListener("change", () => {
+    if (isOfferCheckbox.checked) {
+      offerPriceField.style.display = "block";
+    } else {
+      offerPriceField.style.display = "none";
+      document.getElementById("offerPrice").value = ""; // clear when unchecked
+    }
+  });
+
+  //  Real-time price validation
+  priceInput.addEventListener("input", () => {
+    if (parseFloat(priceInput.value) <= 0) {
+      priceError.style.display = "block";
+    } else {
+      priceError.style.display = "none";
+    }
+  });
+
+  //  Prevent form submission if price invalid
+  form.addEventListener("submit", (e) => {
+    if (!priceInput.value || parseFloat(priceInput.value) <= 0) {
+      e.preventDefault();
+      priceError.style.display = "block";
+      priceInput.focus();
+    }
+  });
+</script>

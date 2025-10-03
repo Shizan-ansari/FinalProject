@@ -25,7 +25,7 @@
         <div class="row" >
             <div class="mb-3 col-md-4">
                 <label for="price" class="form-label">Price</label>
-                <input  name="listing[price]" placeholder="1200" class="form-control" required>
+                <input type="number" name="listing[price]" placeholder="1200" class="form-control" required>
                 <div class="invalid-feedback">Price should be valid</div>
             </div>
             <div class="mb-3 col-md-8">
@@ -41,6 +41,40 @@
             <div class="invalid-feedback">Location should be valid</div>
         </div>
     
+        <!-- extra -->
+        <div class="mb-3">
+            <label class="form-label">Categories</label><br>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="listing[isFeatured]" value="true" id="featured">
+                <label class="form-check-label" for="featured">Featured</label>
+            </div>
+            <div class="form-check form-check-inline">
+                <input class="form-check-input" type="checkbox" name="listing[isOffer]" value="true" id="offer">
+                <label class="form-check-label" for="offer">Offer</label>
+            </div>
+            
+        </div>
+        <!-- Offer Price Input (hidden by default) -->
+        <div class="mb-3" id="offerPriceField" style="display: none;">
+        <label for="offerPrice" class="form-label">Offer Price</label>
+        <input type="number" name="listing[offerPrice]" id="offerPrice" placeholder="1000" class="form-control">
+        </div>
+
+        <script>
+        const offerCheckbox = document.getElementById("offer");
+        const offerPriceField = document.getElementById("offerPriceField");
+
+        offerCheckbox.addEventListener("change", function() {
+            if (this.checked) {
+            offerPriceField.style.display = "block";
+            } else {
+            offerPriceField.style.display = "none";
+            document.getElementById("offerPrice").value = ""; // reset if unchecked
+            }
+        });
+        </script>
+       
+
     <button class="btn btn-dark add-btn mt-3">Add</button>
     <br><br>
     </form>

@@ -1,6 +1,121 @@
 <% layout("layouts/boilerplate") %>
 <body>
-    <style>
+    <!-- Hero Section -->
+    <section class="hero observe-hero ">
+        <video autoplay muted loop playsinline class="hero-video">
+            <source src="/assets/Hotel-villas.mp4" type="video/mp4">
+            Your browser does not support the video tag.
+        </video>
+        <div class="hero-overlay">
+            <h1>Find Your Happy Place with WanderStay</h1>
+            <p>Experience stays that inspire, from mountains to seashores.</p>
+        </div>
+    </section>
+
+    <!-- Divider -->
+    <div class="section-divider observe-divider"></div>
+
+    <!-- Listings Section -->
+         <h2 class="offset-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Featured Listings 🔥✨</h2>
+            <div class="row row-cols-3">
+            <% allListings.filter(l => l.isFeatured).forEach(listing => { %>
+                <%- include("../partials/listingCard", { listing }) %>
+            <% }) %>
+            </div>
+
+            <h2 class="offset-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Offers 🎉💰🔥🏷️</h2>
+            <div class="row row-cols-3">
+            <% allListings.filter(l => l.isOffer).forEach(listing => { %>
+                <%- include("../partials/listingCard", { listing }) %>
+            <% }) %>
+            </div>
+
+            <h2 class="offset-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;All Listings🌟🌟</h2>
+            
+
+    <div class="listings-container fade-slide">
+        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-3 mt-3">
+            <% if (allListings.length === 0) { %>
+                <p>No listings found for your search.</p>
+            <% } %>
+            <% for(let listing of allListings){ %> 
+                <a href="/listings/<%=   listing._id %>" class="listing-link">
+                    <div class="card col listing-card">
+                        <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem;"/>
+                        <div class="card-img-overlay"></div>
+                        <div class="card-body">
+                            <p class="card-text">
+                                <strong><%= listing.title %></strong>
+                                <p >
+                                    <i class="fas fa-map-marker-alt me-2 icon-loc"></i>
+                                    <%= listing.location %>, <%= listing.country %>
+                                </p>
+                                <p class="price-listing">
+                                    <strong>&#8377;<%= listing.price.toLocaleString("en-IN") %> </strong>/ night
+                                </p>
+                            </p>
+                        </div>
+                    </div>
+                </a>
+            <% } %>
+        </div>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const divider = document.querySelector(".observe-divider");
+        const hero = document.querySelector(".observe-hero");
+        const listings = document.querySelector(".listings-container");
+        
+        let lastScrollY = window.scrollY; // Track scroll direction
+
+        const observer = new IntersectionObserver(entries => {
+            entries.forEach(entry => {
+                const scrollingDown = window.scrollY > lastScrollY;
+                lastScrollY = window.scrollY;
+
+                // Only animate when scrolling down and element enters view
+                if (scrollingDown && entry.isIntersecting) {
+                    if (entry.target === hero) {
+                        hero.classList.add("visible");
+                    }
+                    if (entry.target === divider) {
+                        divider.classList.add("animate-divider");
+                        listings.classList.add("visible"); // show listings
+                    }
+                }
+            });
+        }, { threshold: 0.5 });
+
+        observer.observe(document.querySelector(".hero-overlay")); // instead of hero
+
+        observer.observe(divider);
+    });
+    </script>
+</body>
+
+
+
+
+
+<!-- <script>
+    let taxSwitch = document.getElementById("switchCheckDefault");
+    taxSwitch.addEventListener("click",() =>{
+        let taxInfo = document.getElementsByClassName("tax-info");
+        for(info of taxInfo){
+            if(info.style.display != "inline"){
+                info.style.display = "inline";
+            }else{
+                info.style.display = "none";
+            }
+            
+        }
+    })
+</script> -->
+
+
+
+<!-- <style>
         #filters{
             display: flex;
             flex-wrap: wrap;
@@ -33,9 +148,9 @@
         }
         
     </style>
-    <!-- here create a beautiful landing page related to airbnb website -->
+     
     <hr>
-    <!-- <h3>All Listings</h3> -->
+    
      <div id="filters">
         <div class="filters">
             <div><i class="fa-solid fa-fire"></i></div>
@@ -88,39 +203,4 @@
                 <label class="form-check-label" for="switchCheckDefault">Display total after taxes</label>
             </div>
         </div>
-     </div>
-
-    <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-3 mt-3">
-        <% for(let listing of allListings){ %> 
-            <a href="/listings/<%= listing._id %>" class="listing-link">
-                <div class="card col listing-card" >
-                    <img src="<%= listing.image.url %>" class="card-img-top" alt="listing_image" style="height: 20rem;"/>
-                    <div class="card-img-overlay"></div>
-
-                <div class="card-body">
-                    <p class="card-text"><b><%= listing.title %></b>
-                     <br> &#8377;<%= listing.price.toLocaleString("en-IN") %> / night
-                     <i class="tax-info">&nbsp; &nbsp;+18% GST</i>
-                    </p>
-                </div>
-                </div>
-            </a>
-        <% } %>
-    </div>
-    
-</body>
-
-<script>
-    let taxSwitch = document.getElementById("switchCheckDefault");
-    taxSwitch.addEventListener("click",() =>{
-        let taxInfo = document.getElementsByClassName("tax-info");
-        for(info of taxInfo){
-            if(info.style.display != "inline"){
-                info.style.display = "inline";
-            }else{
-                info.style.display = "none";
-            }
-            
-        }
-    })
-</script>
+     </div> -->

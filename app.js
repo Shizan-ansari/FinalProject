@@ -5,6 +5,9 @@ if(process.env.NODE_ENV != "production"){
 
 const express = require("express");
 const app = express();
+//
+const http = require('http').Server(app);
+//
 const mongoose = require("mongoose");
 const Listing = require("./models/listing.js");
 const path = require("path"); 
@@ -25,6 +28,9 @@ const listingRouter = require("./routes/listing.js");
 const reviewRouter = require("./routes/review.js");
 const userRouter = require("./routes/user.js");
 const { title } = require("process");
+const adminRoutes = require("./routes/admin");
+const myBookingsRoutes = require("./routes/my-bookings");
+
 
 
 const dbUrl = process.env.ATLASDB_URL;
@@ -35,6 +41,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(methodOverride("_method"));
 app.engine("ejs",ejsMate);
 app.use(express.static(path.join(__dirname,"/public")));
+app.use("/admin", adminRoutes);
 
 main()
 .then(() =>{
@@ -68,7 +75,7 @@ const sessionOptions = {
     saveUninitialized: true,
     cookie:{
         expires: Date.now() + 7 * 24 * 60 * 60 * 1000,
-        maxAge: 7 * 24 * 60 * 60 * 1000,
+        maxAge: 7 * 24 * 60 *  60 * 1000,
         httpOnly: true,
     }
 };
@@ -76,6 +83,7 @@ const sessionOptions = {
 // app.get("/",(req,res)=>{
 //     res.send("Hi, I am root");
 // });
+
 
 
 app.use(session(sessionOptions));
@@ -87,27 +95,46 @@ passport.use(new LocalStrategy(User.authenticate()));
 
 passport.serializeUser(User.serializeUser());
 passport.deserializeUser(User.deserializeUser());
+// app.use((req, res, next) => {
+//   res.locals.currUser = req.user;
+//   next();
+// });
+
+
+
 
 //Flash
-app.use((req,res,next)=>{
-    res.locals.success = req.flash("success");
-    res.locals.error = req.flash("error");
-    res.locals.currUser = req.user;
-    next();
+// Global locals (before routes)
+app.use((req, res, next) => {
+  res.locals.success = req.flash("success");
+  res.locals.error = req.flash("error");
+  res.locals.currUser = req.user || null;
+  res.locals.GLOBAL_ADMIN_ID = process.env.GLOBAL_ADMIN_ID || ""; // make sure it's always defined
+  next();
 });
 
-// app.get("/demouser", async (req,res) =>{
-//     let fakeUser = new User({
-//         email: "student@gmail.com",
-//         username: "delta-students"
-//     });
-//     let registeredUser = await User.register(fakeUser,"helloworld");
-//     res.send(registeredUser);
-// })
+app.use(myBookingsRoutes);
+
+//Admin route
+
+
+///Payment Routes
+const paymentRoute = require('./routes/paymentRoute');
+
+app.use('/',paymentRoute);
+///
 
 app.use("/listings",listingRouter);
 app.use("/listings/:id/reviews", reviewRouter);
 app.use("/",userRouter);
+
+app.get("/privacy", (req, res) => {
+  res.render("privacy");
+});
+
+app.get("/terms", (req, res) => {
+  res.render("terms");
+});
 
 app.all("*", (req,res,next) =>{
     next(new ExpressError(404, "Page Not Found!"));

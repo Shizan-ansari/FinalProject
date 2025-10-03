@@ -1,0 +1,108 @@
+<% layout("layouts/boilerplate") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Admin Panel - Bookings</title>
+  <style>
+    body {
+      font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 40px;
+      color: #333;
+    }
+
+    h1 {
+      color: #FF385C;
+      margin-bottom: 30px;
+    }
+
+    .table-container {
+      background: #fff;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+      overflow-x: auto;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 16px;
+      min-width: 800px;
+    }
+
+    th, td {
+      padding: 15px 20px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #fff0f3;
+      color: #d90036;
+      font-weight: 600;
+      border-bottom: 1px solid #ddd;
+    }
+
+    tr:nth-child(even) {
+      background-color: #fafafa;
+    }
+
+    tr:hover {
+      background-color: #fff5f7;
+    }
+
+    td {
+      border-bottom: 1px solid #eee;
+    }
+
+    @media (max-width: 768px) {
+      table {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <h1>Bookings Dashboard</h1>
+
+  <div class="table-container">
+    <table>
+    <thead>
+      <tr>
+        <th>Listing Title</th>
+        <th>Customer Name</th>
+        <th>Contact</th>
+        <th>Guests</th>
+        <th>Check-in</th>
+        <th>Check-out</th>
+        <th>Status</th>
+        <th>Order ID</th>
+        <th>Payment ID</th>
+        <th>Created At</th>
+      </tr>
+    </thead>
+    <tbody>
+      <% orders.forEach(order => { %>
+        <% if (order.listing) { %>
+        <tr>
+          <td><%= order.listing.title %></td>
+          <td><%= order.customerName %></td>   
+          <td><%= order.contact %></td>        
+          <td><%= order.guests %></td>         
+          <td><%= order.checkIn ? order.checkIn.toLocaleDateString() : "N/A" %></td>
+          <td><%= order.checkOut ? order.checkOut.toLocaleDateString() : "N/A" %></td>
+
+          <td><%= order.status %></td>
+          <td><%= order.razorpayOrderId %></td>
+          <td><%= order.razorpayPaymentId %></td>
+          <td><%= order.createdAt.toLocaleString() %></td>
+        </tr>
+        <% } %>
+      <% }); %>
+    </tbody>
+  </table>
+  </div>
+</body>
+</html>
