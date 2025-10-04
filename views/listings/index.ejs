@@ -17,14 +17,14 @@
 
     <!-- Listings Section -->
          <h2 class="offset-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Featured Listings 🔥✨</h2>
-            <div class="row row-cols-3">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3">
             <% allListings.filter(l => l.isFeatured).forEach(listing => { %>
                 <%- include("../partials/listingCard", { listing }) %>
             <% }) %>
             </div>
 
             <h2 class="offset-4">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Offers 🎉💰🔥🏷️</h2>
-            <div class="row row-cols-3">
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3">
             <% allListings.filter(l => l.isOffer).forEach(listing => { %>
                 <%- include("../partials/listingCard", { listing }) %>
             <% }) %>
@@ -34,7 +34,7 @@
             
 
     <div class="listings-container fade-slide">
-        <div class="row row-cols-lg-3 row-cols-md-2 row-cols-sm-3 mt-3">
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 mt-3">
             <% if (allListings.length === 0) { %>
                 <p>No listings found for your search.</p>
             <% } %>
